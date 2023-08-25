@@ -4,8 +4,8 @@ go 1.20
 
 require (
 	github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible
-	github.com/google/uuid v1.3.1
 	github.com/jackc/pgx/v4 v4.18.1
+	github.com/jmoiron/sqlx v1.3.5
 	github.com/spf13/cast v1.5.1
 	github.com/streamingfast/logging v0.0.0-20230608130331-f22c91403091
 	go.uber.org/zap v1.21.0

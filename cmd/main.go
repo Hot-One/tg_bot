@@ -5,22 +5,22 @@ import (
 	"fmt"
 	"log"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"telegram-bot/config"
 	"telegram-bot/models"
 	"telegram-bot/storage"
-	"telegram-bot/storage/postgres"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/jmoiron/sqlx"
 )
 
 type Store struct {
-	cfg  *config.Config
-	strg storage.StorageI
+	cfg *config.Config
 }
 
-func NewStore(cfg *config.Config, strg storage.StorageI) *Store {
+func NewStore(cfg *config.Config) *Store {
+
 	return &Store{
-		cfg:  cfg,
-		strg: strg,
+		cfg: cfg,
 	}
 }
 
@@ -117,64 +117,20 @@ func Address(bot *tgbotapi.BotAPI, update tgbotapi.Update, strg storage.StorageI
 }
 
 func main() {
+	cfg := config.Load()
 
-	// Here Laod Configs
-	config := config.Load()
-
-	// Here We Connected To Database
-	pgconn, err := postgres.NewConnectionPostgres(&config)
+	conn, err := sqlx.ConnectContext(context.Background(), "postgres", fmt.Sprintf(
+		"host=%s user=%s dbname=%s password=%s port=%d sslmode=disable",
+		cfg.PostgresHost,
+		cfg.PostgresUser,
+		cfg.PostgresDatabase,
+		cfg.PostgresPassword,
+		cfg.PostgresPort,
+	))
 	if err != nil {
-		panic("postgres no connection: " + err.Error())
+		panic(err)
 	}
 
-	// Here We Connected Store
-	strg := NewStore(&config, pgconn)
+	conn.SetMaxIdleConns(cfg.PostgresMaxConnection)
 
-	bot, err := tgbotapi.NewBotAPI(config.BotToken)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	bot.Debug = true
-
-	u := tgbotapi.NewUpdate(0)
-	u.Timeout = 60
-
-	updates, err := bot.GetUpdatesChan(u)
-	if err != nil {
-		log.Println("Error While bot.GetUpdatesChan: ", err.Error())
-		return
-	}
-	var Order *models.Order
-	for update := range updates {
-		if update.Message == nil { // Пропустить любые не-сообщения
-			continue
-		}
-		if update.Message.Text == "/start" {
-			order, err := Location(bot, update, strg.strg, Order)
-			if err != nil {
-				log.Println("Error while Get Location: ", err.Error())
-				return
-			}
-			Order.Id = order.Id
-			Order.Name = order.Name
-			Order.Lat = order.Lat
-			Order.Long = order.Long
-		} else if update.Message.Location != nil {
-			contact, err := Contact(bot, update, strg.strg, Order)
-			if err != nil {
-				log.Println("Error while Get Contact: ", err.Error())
-				return
-			}
-			Order.Phone = contact.Phone
-		} else if update.Message != nil {
-			fmt.Println("AAAAAAAAAAAAAAAAAAAA: ", Order)
-			address, err := Address(bot, update, strg.strg, Order)
-			if err != nil {
-				log.Println("Error while Get Addres: ", err.Error())
-				return
-			}
-			Order.Address = address.Address
-		}
-	}
 }

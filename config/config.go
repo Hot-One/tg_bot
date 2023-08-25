@@ -14,7 +14,7 @@ type Config struct {
 	PostgresDatabase      string
 	PostgresPassword      string
 	PostgresPort          int
-	PostgresMaxConnection int32
+	PostgresMaxConnection int
 }
 
 func Load() Config {
@@ -26,7 +26,7 @@ func Load() Config {
 	cfg.PostgresPassword = cast.ToString(getOrReturnDefaultValue("POSTGRES_PASSWORD", "946236953"))
 	cfg.PostgresPort = cast.ToInt(getOrReturnDefaultValue("POSTGRES_PORT", 5432))
 
-	cfg.PostgresMaxConnection = cast.ToInt32(getOrReturnDefaultValue("POSTGRES_PORT", 30))
+	cfg.PostgresMaxConnection = cast.ToInt(getOrReturnDefaultValue("POSTGRES_PORT", 30))
 
 	cfg.BotToken = cast.ToString(getOrReturnDefaultValue("TELEGRAM_BOT_TOKEN", "6680687799:AAEG-kVUEwufsiSPTv47j9kuAvQLmKk6iOI"))
 

@@ -1,18 +1,29 @@
 package storage
 
 import (
-	"context"
-	"telegram-bot/models"
+	"github.com/jmoiron/sqlx"
 )
 
-type StorageI interface {
-	CloseDb()
-	Order() OrderRepoI
+type store struct {
+	db    *sqlx.DB
+	order *orderRepo
 }
 
-type OrderRepoI interface {
-	Create(context.Context, *models.OrderCreate) (string, error)
-	GetByID(context.Context, *models.OrderPrimaryKey) (*models.Order, error)
-	Update(context.Context, *models.OrderUpdate) (int64, error)
-	Delete(context.Context, *models.OrderPrimaryKey) error
+func New(db *sqlx.DB) (*store, error) {
+
+	return &store{
+		db: db,
+	}, nil
+}
+
+func (s *store) CloseDb() {
+	s.db.Close()
+}
+
+func (s *store) Order() *orderRepo {
+	if s.order == nil {
+		s.order = NewOrderRepo(s.db)
+	}
+
+	return s.order
 }
