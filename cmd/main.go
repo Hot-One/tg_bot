@@ -25,29 +25,28 @@ func NewStore(cfg *config.Config, strg storage.StorageI) *Store {
 }
 
 func Location(bot *tgbotapi.BotAPI, update tgbotapi.Update, strg storage.StorageI, order *models.Order) (*models.Order, error) {
-	if update.Message.Text == "/start" {
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Welcome!")
-		bot.Send(msg)
-		// Create a custom keyboard with a "Send Location" button
-		location := tgbotapi.NewReplyKeyboard(
-			tgbotapi.NewKeyboardButtonRow(
-				tgbotapi.NewKeyboardButtonLocation("Send Location"),
-			),
-		)
+	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Welcome!")
+	bot.Send(msg)
+	// Create a custom keyboard with a "Send Location" button
+	location := tgbotapi.NewReplyKeyboard(
+		tgbotapi.NewKeyboardButtonRow(
+			tgbotapi.NewKeyboardButtonLocation("Send Location"),
+		),
+	)
 
-		msg = tgbotapi.NewMessage(update.Message.Chat.ID, "Welcome! Please send your location.")
-		msg.ReplyMarkup = location
-		bot.Send(msg)
-		id, err := strg.Order().Create(context.Background(), &models.OrderCreate{
-			Name:  update.Message.Chat.FirstName,
-			Phone: update.Message.Chat.FirstName,
-		})
-		if err != nil {
-			fmt.Println(err.Error())
-			return nil, err
-		}
-		order.Id = id
-	} else if update.Message.Location != nil {
+	msg = tgbotapi.NewMessage(update.Message.Chat.ID, "Welcome! Please send your location.")
+	msg.ReplyMarkup = location
+	bot.Send(msg)
+	id, err := strg.Order().Create(context.Background(), &models.OrderCreate{
+		Name:  update.Message.Chat.FirstName,
+		Phone: update.Message.Chat.FirstName,
+	})
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil, err
+	}
+	order.Id = id
+	if update.Message.Location != nil {
 		latitude := fmt.Sprintf("%f", update.Message.Location.Latitude)
 		longitude := fmt.Sprintf("%f", update.Message.Location.Latitude)
 		_, err := strg.Order().Update(context.Background(), &models.OrderUpdate{
@@ -95,24 +94,24 @@ func Contact(bot *tgbotapi.BotAPI, update tgbotapi.Update, strg storage.StorageI
 }
 
 func Address(bot *tgbotapi.BotAPI, update tgbotapi.Update, strg storage.StorageI, order *models.Order) (*models.Order, error) {
-	address := tgbotapi.NewMessage(update.Message.Chat.ID, "Напишите польностью свой Адрес Например:\n Улица: Себзар, Дом:00, Квартира:00, Этаж:00 !")
-	bot.Send(address)
-	if update.Message != nil {
-		address := update.Message.Text
-		_, err := strg.Order().Update(context.Background(), &models.OrderUpdate{
-			Id:      order.Id,
-			Name:    order.Name,
-			Phone:   order.Phone,
-			Lat:     order.Lat,
-			Long:    order.Long,
-			Address: address,
-		})
-		if err != nil {
-			log.Println(err.Error())
-			return nil, err
-		}
-		order.Address = address
+	Address := tgbotapi.NewMessage(update.Message.Chat.ID, "Напишите польностью свой Адрес Например:\n Улица: Себзар, Дом:00, Квартира:00, Этаж:00 !")
+	bot.Send(Address)
+
+	address := update.Message.Text
+	_, err := strg.Order().Update(context.Background(), &models.OrderUpdate{
+		Id:      order.Id,
+		Name:    order.Name,
+		Phone:   order.Phone,
+		Lat:     order.Lat,
+		Long:    order.Long,
+		Address: address,
+	})
+	if err != nil {
+		log.Println(err.Error())
+		return nil, err
 	}
+	order.Address = address
+
 	return order, nil
 }
 
