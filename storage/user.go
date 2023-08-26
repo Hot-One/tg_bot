@@ -79,7 +79,7 @@ func (r *userRepo) Get(ctx context.Context, order models.User) ([]models.User, e
 		filter += " AND phone_number = :phone_number"
 		args["phone_number"] = order.PhoneNumber
 	}
-	if order.TelegramUserID != "" {
+	if order.TelegramUserID != 0 {
 		filter += " AND telegram_user_id = :telegram_user_id"
 		args["telegram_user_id"] = order.TelegramUserID
 	}
@@ -110,4 +110,8 @@ func (r *userRepo) Get(ctx context.Context, order models.User) ([]models.User, e
 	}
 
 	return result, nil
+}
+
+func (r *userRepo) Update(ctx context.Context, user models.User) (models.User, error) {
+	return models.User{}, nil
 }

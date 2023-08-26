@@ -7,6 +7,7 @@ import (
 type store struct {
 	db    *sqlx.DB
 	order *orderRepo
+	user  *userRepo
 }
 
 func New(db *sqlx.DB) (*store, error) {
@@ -26,4 +27,12 @@ func (s *store) Order() *orderRepo {
 	}
 
 	return s.order
+}
+
+func (s *store) User() *userRepo {
+	if s.order == nil {
+		s.user = NewUserRepo(s.db)
+	}
+
+	return s.user
 }

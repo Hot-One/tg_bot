@@ -136,3 +136,7 @@ func (r *orderRepo) Get(ctx context.Context, order models.Order) ([]models.Order
 
 	return result, nil
 }
+
+func (r *orderRepo) Update(ctx context.Context, order models.Order) (models.Order, error) {
+	return models.Order{}, nil
+}
