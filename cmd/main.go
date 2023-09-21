@@ -3,12 +3,13 @@ package main
 import (
 	"context"
 	"fmt"
-
+	"log"
 	"telegram-bot/config"
 	"telegram-bot/storage"
 	"telegram-bot/usecases/bot_initer"
 
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 )
 
 type Store struct {
@@ -45,6 +46,7 @@ func main() {
 
 	botIninter := bot_initer.New(cfg, strg.User(), strg.Order())
 	if err = botIninter.Execute(context.Background()); err != nil {
+		log.Println(err)
 		panic(err)
 	}
 

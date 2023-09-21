@@ -2,10 +2,9 @@ package storage
 
 import (
 	"context"
+	"telegram-bot/models"
 
 	"github.com/jmoiron/sqlx"
-
-	"telegram-bot/models"
 )
 
 type userRepo struct {
